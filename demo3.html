@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Unblocking</title>
+    <style>
+        /* Enhanced CSS for Monopoly-like aesthetics, blue theme, mobile-first */
+        body {
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #BFDBFE, #3B82F6);
+            font-family: 'Georgia', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            color: #1E40AF;
+            margin: 0;
+        }
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 1rem; text-shadow: 1px 1px #60A5FA; }
+        button { background: #2563EB; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; border: none; cursor: pointer; margin: 0.25rem; transition: background 0.3s; }
+        button:hover { background: #1D4ED8; }
+        input { padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #60A5FA; margin-bottom: 1rem; width: 100%; max-width: 300px; font-family: inherit; }
+        .character-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; width: 100%; max-width: 600px; }
+        .character-card { background: white; padding: 1rem; border-radius: 0.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; text-align: center; transition: transform 0.3s; }
+        .character-card:hover { transform: scale(1.05); }
+        .character-card img { width: 50px; height: 50px; margin-bottom: 0.5rem; border-radius: 50%; }
+        #board-container { position: relative; width: 90vw; max-width: 600px; height: 90vw; max-height: 600px; background: url('https://www.kindpng.com/picc/m/57-570053_monopoly-board-png-monopoly-board-template-transparent-png.png') no-repeat center/cover; margin: 1rem auto; border: 2px solid #1E40AF; }
+        .house { position: absolute; font-size: 0.6rem; text-align: center; color: black; font-weight: bold; padding: 2px; border-radius: 4px; }
+        /* Monopoly-style square path positions (adjusted for image) */
+        .house-start { bottom: 0; left: 0; width: 14%; height: 14%; background: rgba(255,255,255,0.7); }
+        .house-1 { bottom: 0; left: 14%; width: 10%; height: 14%; }
+        .house-2 { bottom: 0; left: 24%; width: 10%; height: 14%; }
+        .house-3 { bottom: 0; left: 34%; width: 10%; height: 14%; }
+        .house-4 { bottom: 0; left: 44%; width: 10%; height: 14%; }
+        .house-5 { bottom: 0; left: 54%; width: 10%; height: 14%; }
+        .house-6 { bottom: 0; left: 64%; width: 10%; height: 14%; }
+        .house-7 { bottom: 0; left: 74%; width: 10%; height: 14%; }
+        .house-victory { bottom: 0; right: 0; width: 14%; height: 14%; background: rgba(0,255,0,0.7); }
+        .player-token { position: absolute; width: 30px; height: 30px; transition: all 0.5s ease; }
+        #dice { width: 50px; height: 50px; margin: 0.5rem; animation: roll 1s; display: none; }
+        @keyframes roll { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .card { background: url('https://www.publicdomainpictures.net/pictures/30000/velka/chance-card.jpg') no-repeat center/cover; padding: 1.5rem; border-radius: 0.25rem; margin: 1rem 0; animation: fadeIn 0.5s; width: 100%; max-width: 300px; color: black; text-align: center; text-shadow: 1px 1px white; }
+        .insights { margin-top: 1rem; width: 100%; max-width: 400px; }
+        .insight { background: #EFF6FF; padding: 0.5rem; border-radius: 0.25rem; margin-bottom: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @media (min-width: 768px) {
+            h1 { font-size: 2rem; }
+            .house { font-size: 0.8rem; }
+            #board-container { width: 600px; height: 600px; }
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">Quantum Unblocking</h1>
+    <button id="lang-toggle">Switch to Portuguese</button>
+    
+    <div id="start-screen">
+        <input id="player-name" placeholder="Enter your name" />
+        <button id="start-game">Start Game</button>
+    </div>
+    
+    <div id="character-selection" style="display: none;">
+        <h2 id="select-char">Choose Your Guardian Character</h2>
+        <div class="character-grid"></div>
+    </div>
+    
+    <div id="game-screen" style="display: none;">
+        <div id="board-container">
+            <div class="house house-start">Start</div>
+            <div class="house house-1">Communication</div>
+            <div class="house house-2">Courage</div>
+            <div class="house house-3">Heart</div>
+            <div class="house house-4">Joy</div>
+            <div class="house house-5">Intuition</div>
+            <div class="house house-6">Purity</div>
+            <div class="house house-7">Shadow</div>
+            <div class="house house-victory">Victory</div>
+            <img id="player-token" class="player-token" src="https://pngimg.com/uploads/avatar/avatar_PNG38.png" alt="Token" style="bottom: 5%; left: 5%;">
+        </div>
+        <button id="roll-dice">Roll Dice</button>
+        <img id="dice" src="https://pngimg.com/uploads/dice/dice_PNG49.png" alt="Dice">
+        <div id="challenge-card" class="card" style="display: none;"></div>
+        <div class="insights">
+            <h2 id="coach-title">AI Coach Insights</h2>
+            <div id="insights-list"></div>
+        </div>
+        <div id="win-message" style="display: none; font-size: 1.5rem; color: green; animation: bounce 1s infinite;">You Win! Transformation Complete!</div>
+    </div>
+
+    <script>
+        // Bilingual translations
+        const translations = {
+            en: {
+                title: "Quantum Unblocking Journey Demo",
+                switchLanguage: "Switch to Portuguese",
+                playerName: "Enter your name",
+                startGame: "Start Game",
+                selectChar: "Choose Your Guardian Character",
+                rollDice: "Roll Dice",
+                coachTitle: "AI Coach Insights",
+                winMessage: "You Win! Transformation Complete!"
+            },
+            pt: {
+                title: "Demonstração da Jornada de Desbloqueio Quântico",
+                switchLanguage: "Mudar para Inglês",
+                playerName: "Digite seu nome",
+                startGame: "Iniciar Jogo",
+                selectChar: "Escolha Seu Personagem Guardião",
+                rollDice: "Rolar Dado",
+                coachTitle: "Insights do Coach de IA",
+                winMessage: "Você Venceu! Transformação Completa!"
+            }
+        };
+
+        // Characters with updated URLs
+        const characters = [
+            { name: "Juliana", desc_en: "A selfless girl, but deep down she feels very insecure.", desc_pt: "Uma menina altruísta, mas no fundo ela se sente muito insegura.", resistance: "insecurity", token: "https://pngimg.com/uploads/anime_girl/anime_girl_PNG2.png" },
+            { name: "Pablo", desc_en: "Great at cooking, but in his own eyes, he wasn't that good.", desc_pt: "Ótimo na cozinha, mas aos seus olhos, ele não era tão bom.", resistance: "self-doubt", token: "https://pngimg.com/uploads/chef/chef_PNG29.png" },
+            { name: "Rafael", desc_en: "Built many safe buildings, but forgot to build his own.", desc_pt: "Construiu muitos edifícios seguros, mas esqueceu de construir o seu próprio.", resistance: "self-neglect", token: "https://pngimg.com/uploads/house/house_PNG50.png" },
+            { name: "Maria", desc_en: "An influencer with a lot of clout, but afraid of being forgotten overnight.", desc_pt: "Uma influenciadora com muita influência, mas com medo de ser esquecida da noite para o dia.", resistance: "fear of replacement", token: "https://pngimg.com/uploads/star/star_PNG41451.png" },
+            { name: "Luis", desc_en: "A well-behaved and kind boy, but always thought he was bothering others.", desc_pt: "Um menino bem-comportado e gentil, mas sempre achava que estava incomodando os outros.", resistance: "social anxiety", token: "https://pngimg.com/uploads/avatar/avatar_PNG38.png" },
+            { name: "Davi", desc_en: "Has a great body shape, but felt dissatisfied and weak.", desc_pt: "Tem um ótimo shape corporal, mas se sentia insatisfeito e fraco.", resistance: "body dissatisfaction", token: "https://pngimg.com/uploads/muscle/muscle_PNG57.png" },
+            { name: "Débora", desc_en: "Great at singing, but didn't like her own voice, so avoided speaking.", desc_pt: "Ótima no canto, mas não gostava da própria voz, então evitava falar.", resistance: "voice avoidance", token: "https://pngimg.com/uploads/microphone/microphone_PNG101718.png" }
+        ];
+
+        // Houses with colors
+        const houses = [
+            { type: "start", msg_en: "Starting House", msg_pt: "Casa Inicial", color: "#FFFFFF" },
+            { type: "communication", msg_en: "Light Blue: Speak a truth about yourself.", msg_pt: "Azul Claro: Fale uma verdade sobre si mesmo.", color: "#ADD8E6" },
+            { type: "courage", msg_en: "Red: Take a brave action (jump, sing, etc.).", msg_pt: "Vermelho: Tome uma ação corajosa (pule, cante, etc.).", color: "#FF0000" },
+            { type: "heart", msg_en: "Green: Say something kind about another player.", msg_pt: "Verde: Diga algo gentil sobre outro jogador.", color: "#008000" },
+            { type: "joy", msg_en: "Yellow: Share a happy memory.", msg_pt: "Amarelo: Compartilhe uma memória feliz.", color: "#FFFF00" },
+            { type: "intuition", msg_en: "Violet: Answer a question from the group.", msg_pt: "Violeta: Responda uma pergunta do grupo.", color: "#EE82EE" },
+            { type: "purity", msg_en: "White: Advance 3 spaces (divine blessing).", msg_pt: "Branco: Avance 3 casas (bênção divina).", color: "#FFFFFF" },
+            { type: "shadow", msg_en: "Orange: Skip one turn (silence healing).", msg_pt: "Laranja: Pule uma rodada (cura pelo silêncio).", color: "#FFA500" },
+            { type: "victory", msg_en: "Red House: Victory Garden - Transformation complete!", msg_pt: "Casa Vermelha: Jardim da Vitória - Transformação completa!", color: "#FF0000" }
+        ];
+
+        // Expanded AI insights
+        function getInsight(houseType, char) {
+            const baseInsights = {
+                communication: `Reflect on your truth to unblock ${char.resistance} from past trauma, improving learning focus.`,
+                courage: `Embrace bravery: Overcoming ${char.resistance} builds resilience for educational challenges.`,
+                heart: `Share kindness: Fosters emotional stability for those with ${char.resistance}-related learning disabilities.`,
+                joy: `Recall joy: Positive memories lighten ${char.resistance}, enhancing cognitive recovery.`,
+                intuition: `Trust intuition: Unblocks ${char.resistance}, promoting better interpersonal learning.`,
+                purity: `Receive blessing: Heal ${char.resistance} and build self-esteem through purity.`,
+                shadow: `Reflect in silence: Heals ${char.resistance}, encouraging therapeutic expression.`,
+                victory: `Transformation complete: Unblocked ${char.resistance}—great for trauma recovery and learning equity!`
+            };
+            return baseInsights[houseType] || "Keep growing with awareness and lightness.";
+        }
+
+        // Game State
+        let lang = 'en';
+        let playerName = '';
+        let selectedChar = null;
+        let position = 0;
+        let insights = [];
+
+        // DOM Elements
+        const title = document.getElementById('title');
+        const langToggle = document.getElementById('lang-toggle');
+        const startScreen = document.getElementById('start-screen');
+        const charSelection = document.getElementById('character-selection');
+        const gameScreen = document.getElementById('game-screen');
+        const playerInput = document.getElementById('player-name');
+        const startBtn = document.getElementById('start-game');
+        const selectCharTitle = document.getElementById('select-char');
+        const charGrid = document.querySelector('.character-grid');
+        const boardContainer = document.getElementById('board-container');
+        const rollBtn = document.getElementById('roll-dice');
+        const dice = document.getElementById('dice');
+        const challengeCard = document.getElementById('challenge-card');
+        const coachTitle = document.getElementById('coach-title');
+        const insightsList = document.getElementById('insights-list');
+        const winMsg = document.getElementById('win-message');
+        const playerToken = document.getElementById('player-token');
+
+        // Update Language
+        function updateLang() {
+            title.textContent = translations[lang].title;
+            langToggle.textContent = translations[lang].switchLanguage;
+            playerInput.placeholder = translations[lang].playerName;
+            startBtn.textContent = translations[lang].startGame;
+            selectCharTitle.textContent = translations[lang].selectChar;
+            rollBtn.textContent = translations[lang].rollDice;
+            coachTitle.textContent = translations[lang].coachTitle;
+            winMsg.textContent = translations[lang].winMessage;
+            if (charGrid.innerHTML) renderCharacters();
+            if (challengeCard.innerHTML) challengeCard.style.backgroundColor = houses[position].color; // Update card color
+            renderInsights();
+        }
+
+        // Render Characters
+        function renderCharacters() {
+            charGrid.innerHTML = '';
+            characters.forEach(char => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.innerHTML = `<img src="${char.token}" alt="${char.name} token" onerror="this.src='https://pngimg.com/uploads/avatar/avatar_PNG38.png'"><h3>${char.name}</h3><p>${lang === 'en' ? char.desc_en : char.desc_pt}</p>`;
+                card.addEventListener('click', () => {
+                    selectedChar = char;
+                    playerToken.src = char.token || 'https://pngimg.com/uploads/avatar/avatar_PNG38.png'; // Fallback
+                    charSelection.style.display = 'none';
+                    gameScreen.style.display = 'block';
+                    insights.push({ type: 'start', msg: lang === 'en' ? `Welcome, ${char.name}! Let's unblock your ${char.resistance}.` : `Bem-vindo, ${char.name}! Vamos desbloquear sua ${char.resistance}.` });
+                    renderInsights();
+                });
+                charGrid.appendChild(card);
+            });
+        }
+
+        // Token Positions (adjusted for Monopoly square)
+        const tokenPositions = [
+            { bottom: '5%', left: '5%' },
+            { bottom: '5%', left: '19%' },
+            { bottom: '5%', left: '29%' },
+            { bottom: '5%', left: '39%' },
+            { bottom: '5%', left: '49%' },
+            { bottom: '5%', left: '59%' },
+            { bottom: '5%', left: '69%' },
+            { bottom: '5%', left: '79%' },
+            { bottom: '5%', left: '86%' }
+        ];
+
+        // Render Insights
+        function renderInsights() {
+            insightsList.innerHTML = '';
+            insights.forEach(insight => {
+                const div = document.createElement('div');
+                div.className = 'insight';
+                div.textContent = insight.msg;
+                insightsList.appendChild(div);
+            });
+        }
+
+        // Start Game
+        startBtn.addEventListener('click', () => {
+            playerName = playerInput.value || 'Player';
+            startScreen.style.display = 'none';
+            charSelection.style.display = 'block';
+            renderCharacters();
+        });
+
+        // Roll Dice
+        rollBtn.addEventListener('click', () => {
+            dice.style.display = 'block';
+            dice.style.animation = 'roll 1s';
+            setTimeout(() => { dice.style.display = 'none'; }, 1000);
+
+            const diceRoll = Math.floor(Math.random() * 6) + 1;
+            position += diceRoll;
+            if (position > 8) position = 8; // Cap at Victory
+            let adjust = 0;
+            if (position === 6) adjust = 3; // Purity
+            if (position === 7) adjust = -1; // Shadow
+            position += adjust;
+            if (position < 0) position = 0;
+            if (position > 8) position = 8;
+
+            const house = houses[position] || houses[8];
+            challengeCard.innerHTML = `<h3>${house.type.toUpperCase()}</h3><p>${lang === 'en' ? house.msg_en : house.msg_pt}</p>`;
+            challengeCard.style.backgroundColor = house.color;
+            challengeCard.style.display = 'block';
+
+            if (house.type !== 'start' && selectedChar) {
+                const insightMsg = getInsight(house.type, selectedChar);
+                insights.push({ type: house.type, msg: lang === 'en' ? insightMsg : insightMsg });
+                renderInsights();
+            }
+
+            // Move token
+            const pos = tokenPositions[position] || tokenPositions[0];
+            playerToken.style.bottom = pos.bottom;
+            playerToken.style.left = pos.left;
+
+            if (position === 8) {
+                winMsg.style.display = 'block';
+                rollBtn.disabled = true;
+            }
+        });
+
+        // Toggle Language
+        langToggle.addEventListener('click', () => {
+            lang = lang === 'en' ? 'pt' : 'en';
+            updateLang();
+        });
+
+        // Initial setup
+        updateLang();
+    </script>
+</body>
+</html>
